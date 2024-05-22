@@ -1,14 +1,13 @@
+import React, { useState } from 'react';
 import { Button, Container, Grid, Paper, TextField, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import SignupLogo from '../images/signup.png';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
         padding: theme.spacing(4),
-        marginTop: theme.spacing(4),
-        boxShadow: '0 4px 8px rgba(0, 0, 255, 0.3)', // Blue shadow for the Paper container
+        marginTop: theme.spacing(5),
     },
     form: {
         display: 'flex',
@@ -17,19 +16,15 @@ const useStyles = makeStyles((theme) => ({
     },
     submit: {
         marginTop: theme.spacing(2),
-        backgroundImage: 'linear-gradient(to right, #2EB8BF, #8F6DD8)', // Gradient background for the button
+        backgroundImage: 'linear-gradient(to right, #2EB8BF, #8F6DD8)',
         color: '#fff',
-        '&:hover': {
-            backgroundImage: 'linear-gradient(to right, #2EB8BF, #8F6DD8)', // Maintain gradient on hover
-            opacity: 0.9,
-        },
     },
     link: {
         textDecoration: 'none',
         color: theme.palette.primary.main,
         '&:hover': {
             textDecoration: 'underline',
-        }
+        },
     },
     title: {
         marginBottom: theme.spacing(4),
@@ -120,6 +115,17 @@ export default function Signup() {
         }
     };
 
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    const togglePasswordVisibility = () => {
+        setShowPassword(!showPassword);
+    };
+
+    const toggleConfirmPasswordVisibility = () => {
+        setShowConfirmPassword(!showConfirmPassword);
+    };
+
     return (
         <Container maxWidth="xs">
             <Paper className={classes.paper} elevation={3}>
@@ -159,21 +165,35 @@ export default function Signup() {
                         label='Password'
                         variant='outlined'
                         fullWidth
-                        type='password'
+                        type={showPassword ? 'text' : 'password'} // Toggle password visibility
                         value={password}
                         onChange={handlePasswordChange}
                         error={Boolean(passwordError)}
                         helperText={passwordError}
+                        InputProps={{ // Add input adornment for visibility toggle
+                            endAdornment: (
+                                <Button onClick={togglePasswordVisibility}>
+                                    {showPassword ? 'Hide' : 'Show'}
+                                </Button>
+                            ),
+                        }}
                     />
                     <TextField
                         label='Confirm Password'
                         variant='outlined'
                         fullWidth
-                        type='password'
+                        type={showConfirmPassword ? 'text' : 'password'} // Toggle confirm password visibility
                         value={confirmPassword}
                         onChange={handleConfirmPasswordChange}
                         error={Boolean(confirmPasswordError)}
                         helperText={confirmPasswordError}
+                        InputProps={{ // Add input adornment for visibility toggle
+                            endAdornment: (
+                                <Button onClick={toggleConfirmPasswordVisibility}>
+                                    {showConfirmPassword ? 'Hide' : 'Show'}
+                                </Button>
+                            ),
+                        }}
                     />
                     <Button className={classes.submit} variant='contained' color='primary' type='submit' fullWidth> Signup </Button>
                 </form>

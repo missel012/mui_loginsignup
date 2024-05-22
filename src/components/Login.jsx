@@ -1,7 +1,6 @@
-// components/Login.js
+import React, { useState } from 'react';
 import { Button, Container, Grid, Paper, TextField, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import LoginLogo from '../images/account.png';
 
@@ -9,7 +8,6 @@ const useStyles = makeStyles((theme) => ({
     paper: {
         padding: theme.spacing(4),
         marginTop: theme.spacing(15),
-
     },
     form: {
         display: 'flex',
@@ -38,13 +36,13 @@ const useStyles = makeStyles((theme) => ({
     },
 }));
 
-
 export default function Login() {
     const classes = useStyles();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
 
     const handleEmailChange = (e) => {
         setEmail(e.target.value);
@@ -67,6 +65,10 @@ export default function Login() {
         } else {
             setPasswordError('');
         }
+    };
+
+    const handleShowPassword = () => {
+        setShowPassword(!showPassword);
     };
 
     const handleSubmit = (e) => {
@@ -97,11 +99,18 @@ export default function Login() {
                         label="Password"
                         variant="outlined"
                         fullWidth
-                        type="password"
+                        type={showPassword ? 'text' : 'password'}
                         value={password}
                         onChange={handlePasswordChange}
                         error={Boolean(passwordError)}
                         helperText={passwordError}
+                        InputProps={{
+                            endAdornment: (
+                                <Button onClick={handleShowPassword}>
+                                    {showPassword ? 'Hide' : 'Show'}
+                                </Button>
+                            ),
+                        }}
                     />
                     <Button
                         className={classes.submit}
