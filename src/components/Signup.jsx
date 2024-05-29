@@ -1,18 +1,24 @@
+// src/components/Signup.jsx
 import React, { useState } from 'react';
 import { Button, Container, Grid, Paper, TextField, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { supabase } from '../supabaseClient';
 import SignupLogo from '../images/signup.png';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
         padding: theme.spacing(4),
-        marginTop: theme.spacing(5),
+        marginTop: theme.spacing(15),
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center', // Center the content horizontally
     },
     form: {
         display: 'flex',
         flexDirection: 'column',
         gap: theme.spacing(2),
+        width: '100%', // Ensure form takes full width of the container
     },
     submit: {
         marginTop: theme.spacing(2),
@@ -38,6 +44,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Signup() {
     const classes = useStyles();
+    const navigate = useNavigate();
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName] = useState('');
     const [email, setEmail] = useState('');
@@ -46,7 +53,6 @@ export default function Signup() {
 
     const [firstNameError, setFirstNameError] = useState('');
     const [lastNameError, setLastNameError] = useState('');
-    const [emailError, setEmailError] = useState('');
     const [passwordError, setPasswordError] = useState('');
     const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
@@ -74,20 +80,6 @@ export default function Signup() {
         }
     };
 
-    const handleEmailChange = (e) => {
-        setEmail(e.target.value);
-        if (!validateEmail(e.target.value)) {
-            setEmailError('Please enter a valid email');
-        } else {
-            setEmailError('');
-        }
-    };
-
-    const validateEmail = (email) => {
-        const emailRegex = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
-        return emailRegex.test(email);
-    };
-
     const handlePasswordChange = (e) => {
         setPassword(e.target.value);
         if (e.target.value.length < 6) {
@@ -106,12 +98,20 @@ export default function Signup() {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (firstName && lastName && email && password && confirmPassword &&
-            !Boolean(firstNameError) && !Boolean(lastNameError) && !Boolean(emailError) &&
+            !Boolean(firstNameError) && !Boolean(lastNameError) &&
             !Boolean(passwordError) && !Boolean(confirmPasswordError)) {
-            alert("Account created successfully");
+            
+            const { error } = await supabase.auth.signUp({ email, password });
+
+            if (error) {
+                alert(error.message);
+            } else {
+                alert("Account created successfully");
+                navigate('/login');
+            }
         }
     };
 
@@ -130,7 +130,7 @@ export default function Signup() {
         <Container maxWidth="xs">
             <Paper className={classes.paper} elevation={3}>
                 <img className={classes.logo} src={SignupLogo} alt='Signup Logo' />
-                <Typography className={classes.title} variant='h4' align='center' gutterBottom style={{ fontFamily: 'Helvetica', fontSize: '2rem' }} >
+                <Typography className={classes.title} variant='h4' align='center' gutterBottom style={{ fontFamily: 'Helvetica', fontSize: '2rem' }}>
                     SIGN UP
                 </Typography>
                 <form className={classes.form} onSubmit={handleSubmit}>
@@ -157,20 +157,18 @@ export default function Signup() {
                         variant='outlined'
                         fullWidth
                         value={email}
-                        onChange={handleEmailChange}
-                        error={Boolean(emailError)}
-                        helperText={emailError}
+                        onChange={(e) => setEmail(e.target.value)}
                     />
                     <TextField
                         label='Password'
                         variant='outlined'
                         fullWidth
-                        type={showPassword ? 'text' : 'password'} // Toggle password visibility
+                        type={showPassword ? 'text' : 'password'}
                         value={password}
                         onChange={handlePasswordChange}
                         error={Boolean(passwordError)}
                         helperText={passwordError}
-                        InputProps={{ // Add input adornment for visibility toggle
+                        InputProps={{
                             endAdornment: (
                                 <Button onClick={togglePasswordVisibility}>
                                     {showPassword ? 'Hide' : 'Show'}
@@ -182,12 +180,12 @@ export default function Signup() {
                         label='Confirm Password'
                         variant='outlined'
                         fullWidth
-                        type={showConfirmPassword ? 'text' : 'password'} // Toggle confirm password visibility
+                        type={showConfirmPassword ? 'text' : 'password'}
                         value={confirmPassword}
                         onChange={handleConfirmPasswordChange}
                         error={Boolean(confirmPasswordError)}
                         helperText={confirmPasswordError}
-                        InputProps={{ // Add input adornment for visibility toggle
+                        InputProps={{
                             endAdornment: (
                                 <Button onClick={toggleConfirmPasswordVisibility}>
                                     {showConfirmPassword ? 'Hide' : 'Show'}
@@ -195,10 +193,13 @@ export default function Signup() {
                             ),
                         }}
                     />
-                    <Button className={classes.submit} variant='contained' color='primary' type='submit' fullWidth> Signup </Button>
+                    <Button className={classes.submit} variant='contained' color='primary' type='submit' fullWidth>
+                        Signup
+                    </Button>
                 </form>
                 <Grid container justifyContent='center'>
-                    <Grid item> Already have an account?
+                    <Grid item>
+                        Already have an account?
                         <Link to='/login' className={classes.link}>
                             Login
                         </Link>

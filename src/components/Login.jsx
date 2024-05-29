@@ -1,18 +1,24 @@
+// src/components/Login.jsx
 import React, { useState } from 'react';
 import { Button, Container, Grid, Paper, TextField, Typography } from '@mui/material';
 import { makeStyles } from '@mui/styles';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { supabase } from '../supabaseClient';
 import LoginLogo from '../images/account.png';
 
 const useStyles = makeStyles((theme) => ({
     paper: {
         padding: theme.spacing(4),
         marginTop: theme.spacing(15),
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center', // Center the content horizontally
     },
     form: {
         display: 'flex',
         flexDirection: 'column',
         gap: theme.spacing(2),
+        width: '100%', // Ensure form takes full width of the container
     },
     submit: {
         marginTop: theme.spacing(2),
@@ -38,6 +44,7 @@ const useStyles = makeStyles((theme) => ({
 
 export default function Login() {
     const classes = useStyles();
+    const navigate = useNavigate();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [emailError, setEmailError] = useState('');
@@ -71,10 +78,16 @@ export default function Login() {
         setShowPassword(!showPassword);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (email && password && !Boolean(emailError) && !Boolean(passwordError)) {
-            alert('Login successful');
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) {
+                alert(error.message);
+            } else {
+                alert('Login successful');
+                navigate('/dashboard');
+            }
         }
     };
 
